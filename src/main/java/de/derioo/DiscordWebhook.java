@@ -90,7 +90,6 @@ public class DiscordWebhook {
 
         OutputStream stream = connection.getOutputStream();
         stream.write(this.content.toString().getBytes());
-        System.out.println(this.content.toString());
         stream.flush();
         stream.close();
 
