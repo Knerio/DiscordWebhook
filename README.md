@@ -6,4 +6,4 @@ Used Dependencies:
 
 #
 
-[Current class](https://github.com/Knerio/DiscordWebhook/blob/master/src/main/java/de/derioo/DiscordWebhook.java
+[Current class](https://github.com/Knerio/DiscordWebhook/blob/master/src/main/java/de/derioo/DiscordWebhook.java)
