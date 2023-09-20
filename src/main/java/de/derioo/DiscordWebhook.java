@@ -27,6 +27,8 @@ import de.derioo.objects.jsonObjects.JsonArray;
 import de.derioo.objects.jsonObjects.JsonElement;
 import de.derioo.objects.jsonObjects.JsonObject;
 import de.derioo.objects.jsonObjects.JsonSimple;
+import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
@@ -60,19 +62,18 @@ public class DiscordWebhook {
 
     public void addEmbedObjects(EmbedObject... objects) {
 
-        try {
+        if (this.content.contains("embeds")) {
             for (EmbedObject object : objects) {
                 this.content.get("embeds").getAsJsonArray().add(object.toJsonObject());
             }
-        } catch (IllegalStateException e) {
-            JsonArray array = new JsonArray();
-            for (EmbedObject object : objects) {
-                array.add(object.toJsonObject());
-            }
-            this.content.add("embeds", array);
             return;
         }
 
+        JsonArray array = new JsonArray();
+        for (EmbedObject object : objects) {
+            array.add(object.toJsonObject());
+        }
+        this.content.add("embeds", array);
     }
 
     public void execute() throws IOException {
@@ -83,7 +84,7 @@ public class DiscordWebhook {
         URL url = new URL(this.url);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.addRequestProperty("Content-Type", "application/json");
-        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
+        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Derio");
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
 
@@ -98,6 +99,7 @@ public class DiscordWebhook {
     }
 
 
+    @Data
     public static class EmbedObject {
 
         private String title;
@@ -159,42 +161,6 @@ public class DiscordWebhook {
             return object;
         }
 
-        public String getTitle() {
-            return title;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public Color getColor() {
-            return color;
-        }
-
-        public Footer getFooter() {
-            return footer;
-        }
-
-        public Thumbnail getThumbnail() {
-            return thumbnail;
-        }
-
-        public Image getImage() {
-            return image;
-        }
-
-        public Author getAuthor() {
-            return author;
-        }
-
-        public List<Field> getFields() {
-            return fields;
-        }
-
         public EmbedObject setTitle(String title) {
             this.title = title;
             return this;
@@ -239,163 +205,75 @@ public class DiscordWebhook {
             this.fields.add(new Field(name, value, inline));
             return this;
         }
+    }
 
+    public record Footer(String text, String iconUrl) {
 
-        private class Footer {
-            private final String text;
-            private final String iconUrl;
+        public @NotNull JsonElement toJsonObject() {
+            JsonObject o = new JsonObject();
+            o.addProperty("text", text);
+            o.addProperty("icon_url", iconUrl);
 
-            private Footer(String text, String iconUrl) {
-                this.text = text;
-                this.iconUrl = iconUrl;
-            }
-
-            private String getText() {
-                return text;
-            }
-
-            private String getIconUrl() {
-                return iconUrl;
-            }
-
-            public JsonElement toJsonObject() {
-                return null;
-            }
+            return o;
         }
+    }
 
-        private class Thumbnail {
-            private final String url;
+    public record Thumbnail(String url) {
 
-            private Thumbnail(String url) {
-                this.url = url;
-            }
+        public @NotNull JsonElement toJsonObject() {
+            JsonObject object = new JsonObject();
 
-            private String getUrl() {
-                return url;
-            }
+            object.addProperty("url", this.url);
 
-            public JsonElement toJsonObject() {
-                JsonObject object = new JsonObject();
-
-                object.addProperty("url", this.url);
-
-                return object;
-            }
+            return object;
         }
+    }
 
-        private class Image {
-            private final String url;
+    public record Image(String url) {
 
-            private Image(String url) {
-                this.url = url;
-            }
+        public @NotNull JsonElement toJsonObject() {
+            JsonObject object = new JsonObject();
 
-            private String getUrl() {
-                return url;
-            }
+            object.addProperty("url", this.url);
 
-            public JsonElement toJsonObject() {
-                JsonObject object = new JsonObject();
-
-                object.addProperty("url", this.url);
-
-                return object;
-            }
+            return object;
         }
+    }
 
-        private class Author {
-            private final String name;
-            private final String url;
-            private final String iconUrl;
+    public record Author(String name, String url, String iconUrl) {
 
-            private Author(String name, String url, String iconUrl) {
-                this.name = name;
-                this.url = url;
-                this.iconUrl = iconUrl;
-            }
+        public @NotNull JsonElement toJsonObject() {
+            JsonObject object = new JsonObject();
 
-            private String getName() {
-                return name;
-            }
+            object.addProperty("url", this.url);
+            object.addProperty("name", this.name);
+            object.addProperty("icon_url", this.iconUrl);
 
-            private String getUrl() {
-                return url;
-            }
-
-            private String getIconUrl() {
-                return iconUrl;
-            }
-
-            public JsonElement toJsonObject() {
-                JsonObject object = new JsonObject();
-
-                object.addProperty("url", this.url);
-                object.addProperty("name", this.name);
-                object.addProperty("icon_url", this.iconUrl);
-
-                return object;
-            }
+            return object;
         }
+    }
 
-        private class Field {
-            private final String name;
-            private final String value;
-            private final boolean inline;
+    public record Field(String name, String value, boolean inline) {
 
-            private Field(String name, String value, boolean inline) {
-                this.name = name;
-                this.value = value;
-                this.inline = inline;
-            }
+        public @NotNull JsonObject toJsonObject() {
+            JsonObject object = new JsonObject();
 
-            private Field(String name, String value) {
-                this.name = name;
-                this.value = value;
-                this.inline = false;
-            }
+            object.addProperty("name", name);
+            object.addProperty("value", value);
+            object.add("inline", new JsonSimple(inline));
 
-            private String getName() {
-                return name;
-            }
-
-            private String getValue() {
-                return value;
-            }
-
-            private boolean isInline() {
-                return inline;
-            }
-
-            public JsonObject toJsonObject() {
-                JsonObject object = new JsonObject();
-
-                object.addProperty("name", name);
-                object.addProperty("value", value);
-                object.add("inline", new JsonSimple(inline));
-
-                return object;
-            }
+            return object;
         }
+    }
 
-        public static class Color {
+    public record Color(java.awt.Color color) {
 
-            private final java.awt.Color color;
+        public int getIntColor() {
+            int rgb = color.getRed();
+            rgb = (rgb << 8) + color.getGreen();
+            rgb = (rgb << 8) + color.getBlue();
 
-            public Color(java.awt.Color color) {
-                this.color = color;
-            }
-
-            public java.awt.Color getColor() {
-                return color;
-            }
-
-            public int getIntColor() {
-                int rgb = color.getRed();
-                rgb = (rgb << 8) + color.getGreen();
-                rgb = (rgb << 8) + color.getBlue();
-
-                return rgb;
-            }
+            return rgb;
         }
     }
 }
