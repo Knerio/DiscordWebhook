@@ -1,8 +1,8 @@
 
 Used Dependencies:
-- Lombok
+- [Lombok](https://projectlombok.org/)
 - [JsonLibrary](https://github.com/knerio/JsonLibrary)
-- Jetbrains annotations
+- [Jetbrains annotations](https://www.jetbrains.com/help/idea/annotating-source-code.html#6883b132)
 
 #
 
